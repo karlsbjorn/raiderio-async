@@ -92,6 +92,23 @@ class RaiderIO:
             query_params["fields"] = ",".join(fields)
         return await self._get_resource(resource, query_params)
 
+    async def get_guild_roster(self, region: str, realm: str, guild: str) -> dict:
+        """
+        Retrieve information about a guild's roster.
+
+        :param region: Name of region to look up guild in.
+        :param realm: Name of realm that guild is on.
+        :param guild: Name of the guild to look up.
+        :return: A dictionary containing information about a guild's roster.
+        """
+        resource = "/api/guilds/roster"
+        query_params = {
+            "region": region,
+            "realm": realm,
+            "guild": guild,
+        }
+        return await self._get_resource(resource, query_params)
+
     # Mythic Plus APIs
 
     async def get_mythic_plus_affixes(self, region: str, locale: str = None) -> dict:

@@ -6,4 +6,5 @@ setup(
     packages=["raiderio_async"],
     author="karlsbjorn",
     install_requires=["aiohttp"],
+    python_requires=">=3.9",
 )
