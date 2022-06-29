@@ -2,7 +2,7 @@ import aiohttp
 
 
 class RaiderIO:
-    __version__ = "0.62.4"  # Version should be the same as the API version.
+    __version__ = "1.0.0"
 
     def __init__(self):
         self.session = aiohttp.ClientSession()
