@@ -1,11 +1,11 @@
 import aiohttp
+from aiolimiter import AsyncLimiter
 
 
 class RaiderIO:
-    __version__ = "1.0.0"
-
     def __init__(self):
         self.session = aiohttp.ClientSession()
+        self.limiter = AsyncLimiter(max_rate=300, time_period=60)
 
     async def __aenter__(self):
         return self
@@ -41,7 +41,8 @@ class RaiderIO:
         }
         if fields:
             query_params["fields"] = ",".join(fields)
-        return await self._get_resource(resource, query_params)
+        async with self.limiter:
+            return await self._get_resource(resource, query_params)
 
     # Guild APIs
 
@@ -68,7 +69,8 @@ class RaiderIO:
             "boss": boss,
             "difficulty": difficulty,
         }
-        return await self._get_resource(resource, query_params)
+        async with self.limiter:
+            return await self._get_resource(resource, query_params)
 
     async def get_guild_profile(
         self, region: str, realm: str, name: str, fields: list = None
@@ -90,7 +92,8 @@ class RaiderIO:
         }
         if fields:
             query_params["fields"] = ",".join(fields)
-        return await self._get_resource(resource, query_params)
+        async with self.limiter:
+            return await self._get_resource(resource, query_params)
 
     async def get_guild_roster(self, region: str, realm: str, guild: str) -> dict:
         """
@@ -107,7 +110,8 @@ class RaiderIO:
             "realm": realm,
             "guild": guild,
         }
-        return await self._get_resource(resource, query_params)
+        async with self.limiter:
+            return await self._get_resource(resource, query_params)
 
     # Mythic Plus APIs
 
@@ -123,7 +127,8 @@ class RaiderIO:
         query_params = {"region": region}
         if locale:
             query_params["locale"] = locale
-        return await self._get_resource(resource, query_params)
+        async with self.limiter:
+            return await self._get_resource(resource, query_params)
 
     async def get_mythic_plus_leaderboard_capacity(
         self, region: str, scope: str = None, realm: str = None
@@ -142,7 +147,8 @@ class RaiderIO:
             query_params["scope"] = scope
         if realm:
             query_params["realm"] = realm
-        return await self._get_resource(resource, query_params)
+        async with self.limiter:
+            return await self._get_resource(resource, query_params)
 
     async def get_mythic_plus_runs(
         self,
@@ -174,7 +180,8 @@ class RaiderIO:
             query_params["affixes"] = "-".join(affixes)
         if page:
             query_params["page"] = page
-        return await self._get_resource(resource, query_params)
+        async with self.limiter:
+            return await self._get_resource(resource, query_params)
 
     async def get_mythic_plus_score_tiers(self, season: str = None) -> list:
         """
@@ -187,7 +194,8 @@ class RaiderIO:
         query_params = {}
         if season:
             query_params["season"] = season
-        return await self._get_resource(resource, query_params)
+        async with self.limiter:
+            return await self._get_resource(resource, query_params)
 
     async def get_mythic_plus_season_cutoffs(self, region: str, season: str) -> dict:
         """
@@ -199,7 +207,8 @@ class RaiderIO:
         """
         resource = "/api/v1/mythic-plus/season-cutoffs"
         query_params = {"region": region, "season": season}
-        return await self._get_resource(resource, query_params)
+        async with self.limiter:
+            return await self._get_resource(resource, query_params)
 
     async def get_mythic_plus_static_data(self, expansion_id: int) -> dict:
         """
@@ -210,7 +219,8 @@ class RaiderIO:
         """
         resource = "/api/v1/mythic-plus/static-data"
         query_params = {"expansion_id": expansion_id}
-        return await self._get_resource(resource, query_params)
+        async with self.limiter:
+            return await self._get_resource(resource, query_params)
 
     # Raiding APIs
 
@@ -236,7 +246,8 @@ class RaiderIO:
         }
         if realm:
             query_params["realm"] = realm
-        return await self._get_resource(resource, query_params)
+        async with self.limiter:
+            return await self._get_resource(resource, query_params)
 
     async def get_raid_hall_of_fame(
         self, raid: str, difficulty: str, region: str
@@ -251,7 +262,8 @@ class RaiderIO:
         """
         resource = "/api/v1/raiding/hall-of-fame"
         query_params = {"raid": raid, "difficulty": difficulty, "region": region}
-        return await self._get_resource(resource, query_params)
+        async with self.limiter:
+            return await self._get_resource(resource, query_params)
 
     async def get_raid_progression(
         self, raid: str, difficulty: str, region: str
@@ -266,7 +278,8 @@ class RaiderIO:
         """
         resource = "/api/v1/raiding/progression"
         query_params = {"raid": raid, "difficulty": difficulty, "region": region}
-        return await self._get_resource(resource, query_params)
+        async with self.limiter:
+            return await self._get_resource(resource, query_params)
 
     async def get_raid_rankings(
         self,
@@ -304,7 +317,8 @@ class RaiderIO:
             query_params["limit"] = limit
         if page:
             query_params["page"] = page
-        return await self._get_resource(resource, query_params)
+        async with self.limiter:
+            return await self._get_resource(resource, query_params)
 
     async def get_raid_static_data(self, expansion_id: int) -> dict:
         """
@@ -315,4 +329,5 @@ class RaiderIO:
         """
         resource = "/api/v1/raiding/static-data"
         query_params = {"expansion_id": expansion_id}
-        return await self._get_resource(resource, query_params)
+        async with self.limiter:
+            return await self._get_resource(resource, query_params)

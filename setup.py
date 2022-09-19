@@ -2,9 +2,9 @@ from setuptools import setup
 
 setup(
     name="raiderio-async",
-    version="1.0.0",
+    version="1.1.0",
     packages=["raiderio_async"],
     author="karlsbjorn",
-    install_requires=["aiohttp"],
+    install_requires=["aiohttp", "aiolimiter"],
     python_requires=">=3.9",
 )
