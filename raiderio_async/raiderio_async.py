@@ -20,6 +20,7 @@ class RaiderIO:
         return self
 
     async def __aexit__(self, exc_type, exc_value, traceback):
+        await self.session.delete_expired_responses()
         await self.session.close()
 
     async def _get_resource(self, resource: str, params: dict):
