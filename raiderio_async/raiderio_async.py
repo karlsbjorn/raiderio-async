@@ -1,11 +1,13 @@
 from datetime import timedelta
 
-from aiohttp_client_cache import CachedSession, SQLiteBackend
+from aiohttp_client_cache import SQLiteBackend
+from aiohttp_client_cache.session import CachedSession
 from aiolimiter import AsyncLimiter
 
 
 class RaiderIO:
-    def __init__(self):
+    def __init__(self, api_key: str | None = None):
+        self.api_key = api_key
         self.session = CachedSession(
             cache=SQLiteBackend(
                 "raiderio-cache",
@@ -27,6 +29,11 @@ class RaiderIO:
         base = "https://raider.io"
         resource_url = f"{base}{resource}"
 
+        # As of 03/05/2025 the API key isn't required and is only there if the user wants a higher rate limit.
+        if self.api_key:
+            params["access_key"] = self.api_key
+            self.limiter.max_rate = 1000
+
         async with self.limiter:
             async with self.session.get(resource_url, params=params) as response:
                 if response.from_cache:
@@ -36,7 +43,7 @@ class RaiderIO:
     # Character APIs
 
     async def get_character_profile(
-        self, region: str, realm: str, name: str, fields: list = None
+        self, region: str, realm: str, name: str, fields: list | None = None
     ) -> dict:
         """
         Retrieve information about a character.
@@ -85,7 +92,7 @@ class RaiderIO:
         return await self._get_resource(resource, query_params)
 
     async def get_guild_profile(
-        self, region: str, realm: str, name: str, fields: list = None
+        self, region: str, realm: str, name: str, fields: list | None = None
     ) -> dict:
         """
         Retrieve information about a guild.
@@ -125,7 +132,7 @@ class RaiderIO:
 
     # Mythic Plus APIs
 
-    async def get_mythic_plus_affixes(self, region: str, locale: str = None) -> dict:
+    async def get_mythic_plus_affixes(self, region: str, locale: str | None = None) -> dict:
         """
         Retrieve the affixes for a specific region.
 
@@ -140,7 +147,7 @@ class RaiderIO:
         return await self._get_resource(resource, query_params)
 
     async def get_mythic_plus_leaderboard_capacity(
-        self, region: str, scope: str = None, realm: str = None
+        self, region: str, scope: str | None = None, realm: str | None = None
     ) -> dict:
         """
         Retrieve the leaderboard capacity for a region including the
@@ -161,11 +168,11 @@ class RaiderIO:
 
     async def get_mythic_plus_runs(
         self,
-        season: str = None,
-        region: str = None,
-        dungeon: str = None,
-        affixes: list = None,
-        page: int = None,
+        season: str | None = None,
+        region: str | None = None,
+        dungeon: str | None = None,
+        affixes: list | None = None,
+        page: int | None = None,
     ) -> dict:
         """
         Retrieve information about the top runs that match the given criteria.
@@ -191,7 +198,7 @@ class RaiderIO:
             query_params["page"] = page
         return await self._get_resource(resource, query_params)
 
-    async def get_mythic_plus_score_tiers(self, season: str = None) -> list:
+    async def get_mythic_plus_score_tiers(self, season: str | None = None) -> list:
         """
         Retrieve the colors used for score tiers in the given season.
 
@@ -231,7 +238,7 @@ class RaiderIO:
     # Raiding APIs
 
     async def get_raid_boss_rankings(
-        self, raid: str, boss: str, difficulty: str, region: str, realm: str = None
+        self, raid: str, boss: str, difficulty: str, region: str, realm: str | None = None
     ) -> dict:
         """
         Retrieve the boss rankings for a given raid and region.
@@ -285,10 +292,10 @@ class RaiderIO:
         raid: str,
         difficulty: str,
         region: str,
-        realm: str = None,
-        guilds: list = None,
-        limit: int = None,
-        page: int = None,
+        realm: str | None = None,
+        guilds: list | None = None,
+        limit: int | None = None,
+        page: int | None = None,
     ) -> dict:
         """
         Retrieve the raid rankings for a given raid and region.
