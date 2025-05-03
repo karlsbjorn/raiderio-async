@@ -7,7 +7,11 @@ from aiolimiter import AsyncLimiter
 
 class RaiderIO:
     def __init__(self, api_key: str | None = None):
+        self.limiter = AsyncLimiter(max_rate=300, time_period=60)
         self.api_key = api_key
+        if self.api_key:
+            self.limiter.max_rate = 1000
+
         self.session = CachedSession(
             cache=SQLiteBackend(
                 "raiderio-cache",
@@ -16,7 +20,6 @@ class RaiderIO:
                 allowed_codes=(200,),
             )
         )
-        self.limiter = AsyncLimiter(max_rate=300, time_period=60)
 
     async def __aenter__(self):
         return self
@@ -32,7 +35,6 @@ class RaiderIO:
         # As of 03/05/2025 the API key isn't required and is only there if the user wants a higher rate limit.
         if self.api_key:
             params["access_key"] = self.api_key
-            self.limiter.max_rate = 1000
 
         async with self.limiter:
             async with self.session.get(resource_url, params=params) as response:
